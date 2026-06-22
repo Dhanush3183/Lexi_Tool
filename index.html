@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LexiCode | Natural Language & Code Analyzer & ICG</title>
+    <!-- Google Fonts for UI (Inter) and Code (Fira Code) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header Section -->
+        <header class="app-header">
+            <div class="logo-area">
+                <div class="logo-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="url(#logo-grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 17L12 22L22 17" stroke="url(#logo-grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M2 12L12 17L22 12" stroke="url(#logo-grad)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <defs>
+                            <linearGradient id="logo-grad" x1="2" y1="2" x2="22" y2="22" gradientUnits="userSpaceOnUse">
+                                <stop stop-color="#00f2fe"/>
+                                <stop offset="1" stop-color="#4facfe"/>
+                            </linearGradient>
+                        </defs>
+                    </svg>
+                </div>
+                <h1>LexiCode <span class="badge">Compiler Tool</span></h1>
+            </div>
+            
+            <!-- Quick Dashboard Stats -->
+            <div class="stats-dashboard">
+                <div class="stat-card">
+                    <span class="stat-label">Lines of Code</span>
+                    <span class="stat-value" id="stat-loc">0</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Total Tokens</span>
+                    <span class="stat-value" id="stat-tokens">0</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Keywords</span>
+                    <span class="stat-value" id="stat-keywords">0</span>
+                </div>
+                <div class="stat-card">
+                    <span class="stat-label">Variables</span>
+                    <span class="stat-value" id="stat-variables">0</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <main class="workspace-grid">
+            
+            <!-- Left Workspace: Input / Code Editor -->
+            <section class="panel editor-panel">
+                <div class="panel-header">
+                    <div class="panel-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline></svg>
+                        Source Code Editor
+                    </div>
+                    <div class="editor-controls">
+                        <select id="language-select" class="custom-select">
+                            <option value="c">C</option>
+                            <option value="cpp">C++</option>
+                            <option value="java">Java</option>
+                            <option value="python">Python</option>
+                        </select>
+                        <button id="btn-sample" class="btn btn-secondary" title="Load sample code for the selected language">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                            Sample
+                        </button>
+                        <button id="btn-clear" class="btn btn-danger" title="Clear editor content">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                            Clear
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Natural Language Box -->
+                <div class="nl-box">
+                    <label for="nl-input" class="nl-label">
+                        <span class="pulse-dot"></span>
+                        Natural Language to Code
+                    </label>
+                    <div class="nl-input-wrapper">
+                        <input type="text" id="nl-input" placeholder="e.g. declare integer x as 10, then loop from 1 to x and print standard values..." autocomplete="off">
+                        <button id="btn-nl-generate" class="btn btn-primary">
+                            <span>Synthesize</span>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Custom IDE Box -->
+                <div class="ide-wrapper">
+                    <div class="ide-container">
+                        <!-- Line numbers will be dynamically populated here -->
+                        <div class="line-numbers" id="line-numbers"><div>1</div></div>
+                        <div class="textarea-wrapper">
+                            <!-- Overlay syntax highlighting display behind the text area for active line shading -->
+                            <div class="editor-backdrop" id="editor-backdrop"></div>
+                            <textarea id="code-editor" spellcheck="false" placeholder="// Enter your code here...&#10;// Or describe what you want in plain English above and click 'Synthesize'"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Right Workspace: Output Analyses Tabs -->
+            <section class="panel analysis-panel">
+                <div class="panel-header">
+                    <div class="tabs">
+                        <button class="tab-btn active" data-tab="tab-lexical">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                            Lexical Analysis
+                        </button>
+                        <button class="tab-btn" data-tab="tab-intermediate">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                            Intermediate Code (TAC)
+                        </button>
+                        <button class="tab-btn" data-tab="tab-symbol">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"></path><path d="M12 6v6l4 2"></path></svg>
+                            Symbol Table
+                        </button>
+                    </div>
+                </div>
+
+                <div class="tab-content-container">
+                    
+                    <!-- Tab 1: Lexical Breakdown -->
+                    <div id="tab-lexical" class="tab-pane active">
+                        <div class="analysis-meta">
+                            <p>Line-by-line lexical breakdown. Click a line number to highlight it in the editor.</p>
+                            <!-- Search & filters -->
+                            <div class="token-filters">
+                                <span class="filter-badge active" data-filter="all">All</span>
+                                <span class="filter-badge keyword" data-filter="keyword">Keyword</span>
+                                <span class="filter-badge identifier" data-filter="identifier">Variable</span>
+                                <span class="filter-badge function" data-filter="function">Function</span>
+                                <span class="filter-badge operator" data-filter="operator">Operator</span>
+                                <span class="filter-badge constant" data-filter="constant">Constant</span>
+                                <span class="filter-badge delimiter" data-filter="delimiter">Delimiter</span>
+                            </div>
+                        </div>
+                        <div class="lexical-scroll-container">
+                            <div id="lexical-output" class="lexical-output-list">
+                                <div class="empty-state">
+                                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+                                    <p>Write or synthesize code to inspect its token components.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 2: Three-Address Code -->
+                    <div id="tab-intermediate" class="tab-pane">
+                        <div class="analysis-meta">
+                            <p>Intermediate representation (Three-Address Code / Quadruples) generated from statements.</p>
+                        </div>
+                        <div class="tac-container">
+                            <div class="tac-header">
+                                <span class="col-num">#</span>
+                                <span class="col-op">Operator</span>
+                                <span class="col-arg1">Argument 1</span>
+                                <span class="col-arg2">Argument 2</span>
+                                <span class="col-res">Result / Dest</span>
+                            </div>
+                            <div id="tac-output" class="tac-output-list">
+                                <div class="empty-state">
+                                    <p>No assignments or expressions parsed yet to generate Three-Address Code.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tab 3: Symbol Table -->
+                    <div id="tab-symbol" class="tab-pane">
+                        <div class="analysis-meta">
+                            <p>List of identifiers (variables, functions, constants) registered in the current compilation context.</p>
+                        </div>
+                        <div class="table-container">
+                            <table class="symbol-table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Category</th>
+                                        <th>Data Type</th>
+                                        <th>Line</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="symbol-table-body">
+                                    <tr>
+                                        <td colspan="4" class="table-empty">No identifiers recorded.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                </div>
+            </section>
+        </main>
+        
+        <!-- Status Bar -->
+        <footer class="app-footer">
+            <div class="footer-left">
+                <span class="status-indicator online"></span>
+                <span id="compiler-status">Lexer Engine Ready</span>
+            </div>
+            <div class="footer-right">
+                <span>IDE Version 1.0.0</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+</body>
+</html>
